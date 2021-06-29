@@ -22,7 +22,7 @@ let package = Package(
             name: "Wormholy",
             dependencies: [],
             path: "Sources",
-            exclude: ["Objc"]),
+            exclude: ["Objc", "Models/Postman/Postman_demo_collection.json"]),
         .testTarget(
             name: "WormholyTests",
             dependencies: ["Wormholy"],

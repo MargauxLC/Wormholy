@@ -22,7 +22,7 @@ class RequestsViewController: WHBaseViewController {
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: "More", style: .plain, target: self, action: #selector(openActionSheet(_:)))
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(done))
         
-        collectionView?.register(UINib(nibName: "RequestCell", bundle:WHBundle.getBundle()), forCellWithReuseIdentifier: "RequestCell")
+        collectionView?.register(UINib(nibName: "RequestCell", bundle:Bundle.module), forCellWithReuseIdentifier: "RequestCell")
         
         filteredRequests = Storage.shared.requests
         NotificationCenter.default.addObserver(forName: newRequestNotification, object: nil, queue: nil) { [weak self] (notification) in
@@ -120,7 +120,7 @@ class RequestsViewController: WHBaseViewController {
     }
     
     func openRequestDetailVC(request: RequestModel){
-        let storyboard = UIStoryboard(name: "Flow", bundle: WHBundle.getBundle())
+        let storyboard = UIStoryboard(name: "Flow", bundle: Bundle.module)
         if let requestDetailVC = storyboard.instantiateViewController(withIdentifier: "RequestDetailViewController") as? RequestDetailViewController{
             requestDetailVC.request = request
             self.show(requestDetailVC, sender: self)

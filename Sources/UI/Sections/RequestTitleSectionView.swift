@@ -10,13 +10,25 @@ import UIKit
 
 class RequestTitleSectionView: UITableViewHeaderFooterView {
 
-    @IBOutlet weak var titleLabel: WHLabel!
-    /*
-    // Only override draw() if you perform custom drawing.
-    // An empty implementation adversely affects performance during animation.
-    override func draw(_ rect: CGRect) {
-        // Drawing code
+    let titleLabel: WHLabel = {
+        let label = WHLabel()
+        label.font = UIFont.systemFont(ofSize: 17)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    override init(reuseIdentifier: String?) {
+        super.init(reuseIdentifier: reuseIdentifier)
+        setupView()
     }
-    */
 
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        setupView()
+    }
+
+    private func setupView() {
+        contentView.setSubview(subview: titleLabel, edgeInsets: UIEdgeInsets(top: 8.0, left: 16.0, bottom: 8.0, right: 16.0), atIndex: nil)
+        titleLabel.heightAnchor.constraint(greaterThanOrEqualToConstant: 12.0).isActive = true
+    }
 }

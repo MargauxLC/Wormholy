@@ -9,12 +9,45 @@
 import UIKit
 
 class BodyDetailViewController: WHBaseViewController {
-    @IBOutlet weak var bottomViewInputConstraint: NSLayoutConstraint!
-    @IBOutlet weak var toolBar: UIToolbar!
-    @IBOutlet weak var labelWordFinded: UILabel!
-    @IBOutlet weak var textView: WHTextView!
-    @IBOutlet weak var buttonPrevious: UIBarButtonItem!
-    @IBOutlet weak var buttonNext: UIBarButtonItem!
+    var bottomViewInputConstraint: NSLayoutConstraint?
+    let toolBar: UIToolbar = {
+        let toolbar = UIToolbar()
+        toolbar.translatesAutoresizingMaskIntoConstraints = false
+        toolbar.barStyle = .default
+        toolbar.isTranslucent = true
+        return toolbar
+    }()
+    let labelWordFinded: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textAlignment = .right
+        label.backgroundColor = UIColor.clear
+        label.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+        label.setContentHuggingPriority(.defaultHigh, for: .vertical)
+        label.font = UIFont.systemFont(ofSize: 17.0)
+        return label
+    }()
+
+    let textView: WHTextView = {
+        let textView = WHTextView()
+        if #available(iOS 10.0, *) {
+            textView.textContentType = .none
+            textView.autocapitalizationType = .sentences
+        }
+        textView.isEditable = false
+        textView.isSelectable = true
+        textView.font = UIFont.systemFont(ofSize: 14)
+        textView.translatesAutoresizingMaskIntoConstraints = false
+        return textView
+    }()
+
+    let buttonPrevious: UIBarButtonItem = {
+        return UIBarButtonItem(title: "<", style: .plain, target: self, action: #selector(previousStep(_:)))
+    }()
+
+    let buttonNext: UIBarButtonItem = {
+        return UIBarButtonItem(title: ">", style: .plain, target: self, action: #selector(nextStep(_:)))
+    }()
 
     static let kPadding: CGFloat = 10.0
 
@@ -29,6 +62,8 @@ class BodyDetailViewController: WHBaseViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        buildView()
         NotificationCenter.default.addObserver(self, selector: #selector(BodyDetailViewController.handleKeyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(BodyDetailViewController.handleKeyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
 
@@ -42,6 +77,35 @@ class BodyDetailViewController: WHBaseViewController {
         buttonPrevious.isEnabled = false
         buttonNext.isEnabled = false
         addSearchController()
+    }
+
+    private func buildView() {
+        if #available(iOS 13.0, *) {
+            view.backgroundColor = UIColor.systemBackground
+        }
+        let tView = UIView()
+        tView.translatesAutoresizingMaskIntoConstraints = false
+        tView.addSubview(labelWordFinded)
+        labelWordFinded.topAnchor.constraint(equalTo:tView.topAnchor).isActive = true
+        labelWordFinded.leftAnchor.constraint(equalTo:tView.leftAnchor, constant: 8.0).isActive = true
+        labelWordFinded.rightAnchor.constraint(equalTo:tView.rightAnchor, constant: 8.0).isActive = true
+        labelWordFinded.bottomAnchor.constraint(equalTo:tView.bottomAnchor).isActive = true
+
+        toolBar.items = [UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil), UIBarButtonItem(customView: tView), buttonPrevious, buttonNext]
+
+        self.view.addSubview(toolBar)
+        toolBar.leftAnchor.constraint(equalTo:view.safeAreaLayoutGuide.leftAnchor).isActive = true
+        toolBar.rightAnchor.constraint(equalTo:view.safeAreaLayoutGuide.rightAnchor).isActive = true
+        toolBar.bottomAnchor.constraint(equalTo:view.safeAreaLayoutGuide.bottomAnchor).isActive = true
+        toolBar.heightAnchor.constraint(equalToConstant: 44.0).isActive = true
+
+        self.view.addSubview(textView)
+        textView.topAnchor.constraint(equalTo:view.safeAreaLayoutGuide.topAnchor).isActive = true
+        textView.leftAnchor.constraint(equalTo:view.safeAreaLayoutGuide.leftAnchor).isActive = true
+        textView.rightAnchor.constraint(equalTo:view.safeAreaLayoutGuide.rightAnchor).isActive = true
+
+        bottomViewInputConstraint = textView.bottomAnchor.constraint(equalTo:toolBar.safeAreaLayoutGuide.topAnchor)
+        bottomViewInputConstraint?.isActive = true
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -162,7 +226,7 @@ class BodyDetailViewController: WHBaseViewController {
         let duration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber
         let curve = notification.userInfo?[UIResponder.keyboardAnimationCurveUserInfoKey] as? NSNumber
 
-        self.bottomViewInputConstraint.constant = height
+        self.bottomViewInputConstraint?.constant = height
 
         UIView.animate(withDuration: duration?.doubleValue ?? 0.0, delay: 0.0, options: UIView.AnimationOptions(rawValue: UIView.AnimationOptions.RawValue((curve?.intValue)!)), animations: {
             self.view.layoutIfNeeded()

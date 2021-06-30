@@ -88,16 +88,20 @@ public class Wormholy: NSObject
         guard UIViewController.currentViewController()?.isKind(of: WHBaseViewController.classForCoder()) == false && UIViewController.currentViewController()?.isKind(of: WHNavigationController.classForCoder()) == false else {
             return
         }
-        let storyboard = UIStoryboard(name: "Flow", bundle: Bundle.module)
-        if let initialVC = storyboard.instantiateInitialViewController(){
-            initialVC.modalPresentationStyle = .fullScreen
-            UIViewController.currentViewController()?.present(initialVC, animated: true, completion: nil)
-        }
+        let vc = RequestsViewController()
+        vc.title = "Requests"
+        let navVC = UINavigationController(rootViewController: vc)
+        navVC.navigationBar.prefersLargeTitles = true
+        navVC.modalPresentationStyle = .fullScreen
+        UIViewController.currentViewController()?.present(navVC, animated: true, completion: nil)
     }
 
     @objc public static var wormholyFlow: UIViewController? {
-        let storyboard = UIStoryboard(name: "Flow", bundle: Bundle.module)
-        return storyboard.instantiateInitialViewController()
+        let vc = RequestsViewController()
+        vc.title = "Requests"
+        let navVC = UINavigationController(rootViewController: vc)
+        navVC.navigationBar.prefersLargeTitles = true
+        return navVC
     }
 
     @objc public static var shakeEnabled: Bool = {

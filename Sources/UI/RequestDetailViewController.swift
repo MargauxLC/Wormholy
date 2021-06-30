@@ -10,7 +10,19 @@ import UIKit
 
 class RequestDetailViewController: WHBaseViewController {
     
-    @IBOutlet weak var tableView: WHTableView!
+    let tableView: WHTableView = {
+        let tableView = WHTableView()
+        if #available(iOS 13.0, *) {
+            tableView.backgroundColor = UIColor.systemGray6
+        }
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.sectionHeaderHeight = 28.0
+        tableView.sectionFooterHeight = 28.0
+        tableView.estimatedRowHeight = 100.0
+        tableView.insetsContentViewsToSafeArea = true
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        return tableView
+    }()
     
     var request: RequestModel?
     var sections: [Section] = [
@@ -38,12 +50,14 @@ class RequestDetailViewController: WHBaseViewController {
         
         let shareButton = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(openActionSheet(_:)))
         navigationItem.rightBarButtonItems = [shareButton]
-        
-        tableView.estimatedRowHeight = 100.0
-        tableView.rowHeight = UITableView.automaticDimension
-        tableView.register(UINib(nibName: "TextTableViewCell", bundle:Bundle.module), forCellReuseIdentifier: "TextTableViewCell")
-        tableView.register(UINib(nibName: "ActionableTableViewCell", bundle:Bundle.module), forCellReuseIdentifier: "ActionableTableViewCell")
-        tableView.register(UINib(nibName: "RequestTitleSectionView", bundle:Bundle.module), forHeaderFooterViewReuseIdentifier: "RequestTitleSectionView")
+        view.setSubview(subview: tableView)
+        tableView.register(TextTableViewCell.self, forCellReuseIdentifier: "TextTableViewCell")
+        tableView.register(ActionableTableViewCell.self, forCellReuseIdentifier: "ActionableTableViewCell")
+        tableView.register(RequestTitleSectionView.self, forHeaderFooterViewReuseIdentifier: "RequestTitleSectionView")
+        tableView.delegate = self
+        tableView.dataSource = self
+        tableView.tableFooterView = UIView()
+        tableView.reloadData()
     }
     
     override func didReceiveMemoryWarning() {
@@ -79,12 +93,10 @@ class RequestDetailViewController: WHBaseViewController {
     
     // MARK: - Navigation
     func openBodyDetailVC(title: String?, body: Data?){
-        let storyboard = UIStoryboard(name: "Flow", bundle: Bundle.module)
-        if let requestDetailVC = storyboard.instantiateViewController(withIdentifier: "BodyDetailViewController") as? BodyDetailViewController{
-            requestDetailVC.title = title
-            requestDetailVC.data = body
-            self.show(requestDetailVC, sender: self)
-        }
+        let detailVC = BodyDetailViewController()
+        detailVC.title = title
+        detailVC.data = body
+        self.navigationController?.pushViewController(detailVC, animated: true)
     }
     
 }
@@ -124,7 +136,7 @@ extension RequestDetailViewController: UITableViewDataSource{
                 return cell
             case .requestBody:
                 let cell = tableView.dequeueReusableCell(withIdentifier: "ActionableTableViewCell", for: indexPath) as! ActionableTableViewCell
-                cell.labelAction?.text = "View body"
+                cell.labelAction.text = "View body"
                 return cell
             case .responseHeader:
                 let cell = tableView.dequeueReusableCell(withIdentifier: "TextTableViewCell", for: indexPath) as! TextTableViewCell
@@ -132,7 +144,7 @@ extension RequestDetailViewController: UITableViewDataSource{
                 return cell
             case .responseBody:
                 let cell = tableView.dequeueReusableCell(withIdentifier: "ActionableTableViewCell", for: indexPath) as! ActionableTableViewCell
-                cell.labelAction?.text = "View body"
+                cell.labelAction.text = "View body"
                 return cell
             }
         }
@@ -156,5 +168,6 @@ extension RequestDetailViewController: UITableViewDelegate{
         default:
             break
         }
+        tableView.deselectRow(at: indexPath, animated: false)
     }
 }

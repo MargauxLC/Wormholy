@@ -10,20 +10,28 @@ import UIKit
 
 class RequestsViewController: WHBaseViewController {
     
-    @IBOutlet weak var collectionView: WHCollectionView!
+    let collectionView: WHCollectionView = {
+        let c = WHCollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+        if #available(iOS 13.0, *) {
+            c.backgroundColor = UIColor.systemGray6
+        }
+        c.translatesAutoresizingMaskIntoConstraints = false
+        return c
+    }()
     var filteredRequests: [RequestModel] = []
     var searchController: UISearchController?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        view.setSubview(subview: collectionView)
         addSearchController()
-        
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: "More", style: .plain, target: self, action: #selector(openActionSheet(_:)))
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(done))
-        
-        collectionView?.register(UINib(nibName: "RequestCell", bundle:Bundle.module), forCellWithReuseIdentifier: "RequestCell")
-        
+
+        collectionView.register(RequestCell.self, forCellWithReuseIdentifier: "RequestCell")
+        collectionView.delegate = self
+        collectionView.dataSource = self
         filteredRequests = Storage.shared.requests
         NotificationCenter.default.addObserver(forName: newRequestNotification, object: nil, queue: nil) { [weak self] (notification) in
             DispatchQueue.main.sync { [weak self] in
@@ -42,7 +50,7 @@ class RequestsViewController: WHBaseViewController {
             
         }) { (completionContext) in
             //Code here will execute after the rotation has finished.
-            (self.collectionView?.collectionViewLayout as? UICollectionViewFlowLayout)?.itemSize = CGSize(width: UIScreen.main.bounds.width, height: 76)
+            (self.collectionView.collectionViewLayout as? UICollectionViewFlowLayout)?.itemSize = CGSize(width: UIScreen.main.bounds.width, height: 76)
             self.collectionView.reloadData()
         }
     }
@@ -120,11 +128,9 @@ class RequestsViewController: WHBaseViewController {
     }
     
     func openRequestDetailVC(request: RequestModel){
-        let storyboard = UIStoryboard(name: "Flow", bundle: Bundle.module)
-        if let requestDetailVC = storyboard.instantiateViewController(withIdentifier: "RequestDetailViewController") as? RequestDetailViewController{
-            requestDetailVC.request = request
-            self.show(requestDetailVC, sender: self)
-        }
+        let detailVC = RequestDetailViewController()
+        detailVC.request = request
+        self.navigationController?.pushViewController(detailVC, animated: true)
     }
     
     deinit {

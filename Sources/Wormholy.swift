@@ -9,6 +9,7 @@
 import Foundation
 import UIKit
 
+@available(iOSApplicationExtension, unavailable)
 public class Wormholy: NSObject
 {
     @available(*, deprecated, renamed: "ignoredHosts")
@@ -128,6 +129,7 @@ public class Wormholy: NSObject
     static var origEphemeralSessionConfiguration: IMP?
 }
 
+@available(iOSApplicationExtension, unavailable)
 extension Wormholy {
 
     public static func awake() {
@@ -141,6 +143,7 @@ extension Wormholy {
     }()
 }
 
+@available(iOSApplicationExtension, unavailable)
 extension Wormholy {
     typealias ClosureType = @convention(c) (AnyObject, Selector) -> URLSessionConfiguration
 

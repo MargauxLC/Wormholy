@@ -39,6 +39,7 @@ class WHBaseViewController: UIViewController {
     
 }
 
+@available(iOSApplicationExtension, unavailable)
 extension UIViewController{
     static func currentViewController(_ viewController: UIViewController? = UIApplication.shared.keyWindow?.rootViewController) -> UIViewController? {
         guard let viewController = viewController else { return nil }
